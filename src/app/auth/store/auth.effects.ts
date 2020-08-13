@@ -30,7 +30,8 @@ const handleAuthentication = (resData: AuthResponseData) => {
     email: resData.email,
     userId: resData.localId,
     token: resData.idToken,
-    expirationDate: expirationDate
+    expirationDate: expirationDate,
+    redirect: true
   });
 }
 
@@ -78,7 +79,7 @@ export class AuthEffects {
   @Effect()
   authSignup = this.actions$.pipe(
     ofType(AuthActions.SIGNUP_START),
-    switchMap((authData: AuthActions.SignUpStart) => {
+    switchMap((authData: AuthActions.SignUpStart) => { // switch observables, map actions observable to success handle auth observable
       return this.http
         .post<AuthResponseData>(this.signUpUrl,
           {
@@ -118,8 +119,10 @@ export class AuthEffects {
   @Effect({ dispatch: false })
   authRedirect = this.actions$.pipe(
     ofType(AuthActions.AUTHENTICATION_SUCCESS),
-    tap(() => {
-      this.router.navigate(['/'])
+    tap((authActions: AuthActions.AuthenticationSuccess) => {
+      if (authActions.payload.redirect) {
+        this.router.navigate(['/'])
+      }
     })
   )
 
@@ -143,7 +146,7 @@ export class AuthEffects {
         id: string,
         _token: string,
         _tokenExpirationDate: Date
-      } = JSON.parse(localStorage.getItem('loggedUser'));
+      } = JSON.parse(localStorage.getItem('userData'));
 
       if (!user) {
         return {type: 'DUMMY'}
@@ -168,7 +171,8 @@ export class AuthEffects {
             email: loadedUser.email,
             userId: loadedUser.id,
             token: loadedUser._token,
-            expirationDate: loadedUser._tokenExpirationDate
+            expirationDate: loadedUser._tokenExpirationDate, 
+            redirect: false
           }
         );
 

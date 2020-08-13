@@ -1,3 +1,4 @@
+import { RecipeEffects } from './recipes/store/recipes.effects';
 import { environment } from './../environments/environment';
 import { AuthEffects } from './auth/store/auth.effects';
 import { CoreModule } from './core.module';
@@ -25,7 +26,7 @@ import * as fromApp from './store/app.reducer';
     AppRoutingModule,
     HttpClientModule,
     StoreModule.forRoot(fromApp.appReducer),
-    EffectsModule.forRoot([ AuthEffects ]),
+    EffectsModule.forRoot([ AuthEffects, RecipeEffects ]),
     StoreDevtoolsModule.instrument({logOnly: environment.production}),
     StoreRouterConnectingModule.forRoot(),
     SharedModule,

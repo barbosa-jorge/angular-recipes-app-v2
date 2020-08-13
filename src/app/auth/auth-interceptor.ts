@@ -10,9 +10,15 @@ export class AuthInterceptorService implements HttpInterceptor {
     constructor(private store: Store<fromApp.AppState>
     ) {}
 
+    /* 
+       exhaustMap: waits the first observable to completo (after take(1)),
+       then it gets the result and you can map it to another observable
+       take(1) // get the value and unsubscribe from observable after that.
+    */
+
     intercept(request: HttpRequest<any>, next: HttpHandler) {
-        return this.store.select('auth').pipe(
-            take(1),
+        return this.store.select('auth').pipe(     // first observable
+            take(1),   
             map(authStore => authStore.user),
             exhaustMap(user => {
                 if (!user) {
@@ -21,7 +27,7 @@ export class AuthInterceptorService implements HttpInterceptor {
                 const modifiedRequest = request.clone({
                     params: new HttpParams().set('auth', user.token)
                 });
-                return next.handle(modifiedRequest);
+                return next.handle(modifiedRequest);  // second observable
             })
         )
     }
